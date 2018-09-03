@@ -1,0 +1,23 @@
+#
+# Build go project
+#
+FROM golang:1.11 as go-builder
+
+WORKDIR /go/src/github.com/in4it/http-echo/
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o http-echo *.go
+
+#
+# Runtime container
+#
+FROM alpine:latest  
+
+RUN mkdir -p /app
+
+WORKDIR /app
+
+COPY --from=go-builder /go/src/github.com/in4it/http-echo/http-echo .
+
+CMD ["./http-echo"]  
