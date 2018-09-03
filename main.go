@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 )
@@ -11,8 +12,21 @@ func main() {
 		text := os.Getenv("TEXT")
 		if text == "" {
 			fmt.Fprintf(w, "set env TEXT to display something")
+			return
+		}
+		next := os.Getenv("NEXT")
+		if next == "" {
+			fmt.Fprintf(w, "%s", text)
 		} else {
-			fmt.Fprintf(w, text)
+			resp, err := http.Get("http://" + next + "/")
+			if err != nil {
+				fmt.Fprintf(w, "Couldn't connect to http://%s/", next)
+				fmt.Printf("Error: %s", err)
+				return
+			}
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			fmt.Fprintf(w, "%s %s\n", text, body)
 		}
 	})
 
