@@ -5,10 +5,21 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
 )
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		latency := os.Getenv("LATENCY")
+		if latency != "" {
+			i, err := strconv.ParseInt(latency, 10, 64)
+			if err != nil {
+				fmt.Fprintf(w, "Env LATENCY needs to be a number")
+				return
+			}
+			time.Sleep(time.Duration(i) * time.Second)
+		}
 		text := os.Getenv("TEXT")
 		if text == "" {
 			fmt.Fprintf(w, "set env TEXT to display something")
