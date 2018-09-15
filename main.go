@@ -19,6 +19,16 @@ type Login struct {
 	Login string `json:"login" binding:"required"`
 }
 
+type Jwks struct {
+	Keys []JwksKeys `json:"keys"`
+}
+type JwksKeys struct {
+	E   string `json:"e"`
+	Kid string `json:"kid"`
+	Kty string `json:"kty"`
+	N   string `json:"n"`
+}
+
 var (
 	publicKey *rsa.PublicKey
 	signKey   *rsa.PrivateKey
@@ -107,7 +117,22 @@ func main() {
 			return
 		}
 
-		fmt.Fprintf(w, "%s", jsonbuf)
+		var k JwksKeys
+
+		if err := json.Unmarshal(jsonbuf, &k); err != nil {
+			log.Printf("failed to unmarshal JSON: %s", err)
+			return
+		}
+
+		j := &Jwks{Keys: []JwksKeys{k}}
+
+		jsonbuf2, err := json.Marshal(j)
+		if err != nil {
+			log.Printf("failed to generate JSON: %s", err)
+			return
+		}
+
+		fmt.Fprintf(w, "%s", jsonbuf2)
 	})
 
 	// start server
