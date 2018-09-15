@@ -73,7 +73,8 @@ func main() {
 		token := jwt.NewWithClaims(jwt.GetSigningMethod("RS256"), jwt.MapClaims{
 			"username": l.Login,
 			"group":    "users",
-			"issuer":   "http-echo@http-echo.kubernetes.newtech.academy",
+			"iss":      "http-echo@http-echo.kubernetes.newtech.academy",
+			"sub":      "http-echo@http-echo.kubernetes.newtech.academy",
 			"exp":      time.Now().Add(time.Hour * 72).Unix(),
 		})
 
