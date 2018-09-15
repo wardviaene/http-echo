@@ -71,12 +71,15 @@ func main() {
 		}
 		// generate jwt token
 		token := jwt.NewWithClaims(jwt.GetSigningMethod("RS256"), jwt.MapClaims{
-			"username": l.Login,
-			"group":    "users",
-			"iss":      "http-echo@http-echo.kubernetes.newtech.academy",
-			"sub":      "http-echo@http-echo.kubernetes.newtech.academy",
-			"exp":      time.Now().Add(time.Hour * 72).Unix(),
+			"login":  l.Login,
+			"groups": "users",
+			"iss":    "http-echo@http-echo.kubernetes.newtech.academy",
+			"sub":    "http-echo@http-echo.kubernetes.newtech.academy",
+			"exp":    time.Now().Add(time.Hour * 72).Unix(),
+			"iat":    time.Now().Unix(),
 		})
+
+		token.Header["kid"] = "mykey"
 
 		tokenString, err := token.SignedString(signKey)
 
@@ -95,6 +98,8 @@ func main() {
 			log.Printf("failed to create JWK: %s", err)
 			return
 		}
+
+		key.Set("kid", "mykey")
 
 		jsonbuf, err := json.MarshalIndent(key, "", "  ")
 		if err != nil {
