@@ -1,7 +1,7 @@
 #
 # Build go project
 #
-FROM golang:1.11 as go-builder
+FROM golang:1.11-alpine as go-builder
 
 WORKDIR /go/src/github.com/in4it/http-echo/
 
