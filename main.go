@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -54,7 +55,21 @@ func main() {
 		if next == "" {
 			fmt.Fprintf(w, "%s", text)
 		} else {
-			resp, err := http.Get("http://" + next + "/")
+			// initialize client
+			client := &http.Client{}
+			req, _ := http.NewRequest("GET", "http://"+next+"/", nil)
+
+			// get headirs
+			for k, _ := range r.Header {
+				for _, otHeader := range otHeaders {
+					if strings.ToLower(otHeader) == strings.ToLower(k) {
+						req.Header.Set(k, r.Header.Get(k))
+					}
+				}
+			}
+
+			// do request
+			resp, err := client.Do(req)
 			if err != nil {
 				fmt.Fprintf(w, "Couldn't connect to http://%s/", next)
 				fmt.Printf("Error: %s", err)
