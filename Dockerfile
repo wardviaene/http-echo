@@ -20,10 +20,14 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o http-echo *.go
 #
 FROM alpine:latest  
 
-RUN mkdir -p /app
+RUN mkdir -p /app && \
+    addgroup -S app && adduser -S app -G app && \
+    chown app:app /app
 
 WORKDIR /app
 
 COPY --from=go-builder /go/src/github.com/in4it/http-echo/http-echo .
+
+USER app
 
 CMD ["./http-echo"]  
